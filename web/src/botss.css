@@ -1,0 +1,142 @@
+/*ESTILO PREDETERMINADO PARA LA PAGINA*/
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f0f4f8;
+    color: #333;
+}
+
+.hero {
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    color: white;
+}
+
+.challenge-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.challenge-card:hover {
+    transform: translateY(-5px);
+}
+
+/*ESTILO DEL CHATBOT*/
+.chatbot-toggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #4a5568;
+    color: white;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.chatbot-container {
+    position: fixed;
+    bottom: 100px;
+    right: 20px;
+    width: 350px;
+    height: 500px;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    display: none;
+    flex-direction: column;
+}
+
+.chatbot-header {
+    background-color: #004080;
+    color: white;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.chatbot-header img {
+    width: 30px;
+    height: 30px;
+    margin-right: 10px;
+}
+
+.chatbot-header button {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.chatbot-messages {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+}
+
+.chatbot-input {
+    display: flex;
+    border-top: 1px solid #ccc;
+}
+
+.chatbot-input input {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-bottom-left-radius: 10px;
+}
+
+.chatbot-input button {
+    background-color: #004080;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-bottom-right-radius: 10px;
+    cursor: pointer;
+}
+
+/*ESTILO DEL MENSAJE*/
+.message {
+    margin-bottom: 10px;
+}
+
+.message.user {
+    text-align: right;
+}
+
+.message.bot {
+    text-align: left;
+}
+
+.message .text {
+    display: inline-block;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.message.user .text {
+    background-color: #004080;
+    color: white;
+}
+
+.message.bot .text {
+    background-color: #f1f1f1;
+    color: black;
+}
+
+/* El texto que escribe el usuario debe verse (antes heredaba color blanco) */
+.chatbot-input input {
+    color: #111111;
+    background-color: #ffffff;
+}
+
+.chatbot-input input::placeholder {
+    color: #777777;
+}
