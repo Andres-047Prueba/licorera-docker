@@ -1,0 +1,12 @@
+# Lo que NO debe entrar a la imagen
+.git
+.gitignore
+.github
+.env
+.env.*
+*.md
+*.log
+.DS_Store
+Thumbs.db
+.vscode
+.idea
