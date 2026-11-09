@@ -1,0 +1,42 @@
+name: CI - Build de imágenes Docker
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+
+      - name: Crear .env de prueba a partir de .env.example
+        run: cp .env.example .env
+
+      - name: Validar docker-compose.yml
+        run: docker compose config --quiet
+
+      - name: Construir las imágenes
+        run: docker compose build
+
+      - name: Levantar los contenedores
+        run: docker compose up -d
+
+      - name: Prueba de comunicación web -> db (guardar y leer un dato)
+        shell: bash
+        run: |
+          # -d envía un POST y -L sigue la redirección (Post/Redirect/Get) hasta la página con el dato leído
+          curl --fail --silent --show-error -L \
+               --retry 30 --retry-delay 3 --retry-connrefused --retry-all-errors \
+               -d "mensaje=prueba desde CI" \
+               http://localhost:8080/prueba_db.php | grep "Conexión exitosa"
+
+      - name: Mostrar logs si algo falló
+        if: failure()
+        run: docker compose logs
+
+      - name: Apagar y limpiar
+        if: always()
+        run: docker compose down -v
