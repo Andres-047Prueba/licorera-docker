@@ -1,0 +1,10 @@
+services:
+  web:
+    container_name: !reset null
+    ports: !reset []
+  db:
+    container_name: !reset null
+    image: licorera-db-ci
+    build: ./db
+    volumes: !override
+      - db_data:/var/lib/mysql
