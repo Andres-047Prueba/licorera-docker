@@ -28,8 +28,12 @@ flowchart LR
 │   ├── php/custom.ini      # Ajustes de PHP
 │   └── src/                # Código PHP, CSS, JS e imágenes
 ├── db/
-│   └── init.sql            # Tablas (se ejecuta al crear el volumen)
+│   └── init.sql            # Tablas 
 ├── .github/workflows/ci.yml
+├── Jenkinsfile             # Pipeline como código (Jenkins)
+├── jenkins/                # Dockerfile y compose para levantar Jenkins
+├── tests/test_comunicacion.sh  # Prueba web -> db por nombre de servicio
+├── docker-compose.ci.yml   # Ajustes del compose solo para Jenkins
 ├── docker-compose.yml
 ├── .env.example            # Plantilla de variables 
 └── .gitignore              # Excluye .env
@@ -47,7 +51,7 @@ git clone https://github.com/TU_USUARIO/licorera-docker.git
 cd licorera-docker
 
 # 2. Crear el archivo de variables y editar las contraseñas
-cp .env.example .env          
+cp .env.example .env        
 
 # 3. Construir las imágenes y levantar los contenedores
 docker compose up --build -d
@@ -67,10 +71,10 @@ Abrir en el navegador:
 La página `prueba_db.php` demuestra una operación de ida y vuelta: el contenedor `web` guarda un dato en MySQL y luego lo lee. Muestra el host usado (`db`) y los identificadores de ambos contenedores. También se puede comprobar por línea de comandos:
 
 ```bash
-# Quién es "db" desde el contenedor web 
+# Quién es "db" desde el contenedor web
 docker compose exec web getent hosts db
 
-# Ver los datos guardados directamente en MySQL (pide la contraseña root del .env)
+# Ver los datos guardados directamente en MySQL
 docker compose exec db mysql -uroot -p licorera -e "SELECT * FROM prueba_comunicacion;"
 
 # Ver los dos contenedores dentro de la red
@@ -84,7 +88,7 @@ docker network inspect licorera-docker_licorera_net
 ```bash
 docker compose logs -f            # ver logs
 docker compose down               # detener y borrar contenedores 
-docker compose down -v            # detener y borrar también el volumen 
+docker compose down -v            # detener y borrar también el volumen
 docker compose build --no-cache   # reconstruir imágenes desde cero
 docker ps                         # contenedores en ejecución
 ```
@@ -96,8 +100,26 @@ docker ps                         # contenedores en ejecución
 - Las claves de los usuarios se guardan con `password_hash()` y se validan con `password_verify()`.
 - La base de datos no publica puertos hacia el exterior; solo es alcanzable desde la red interna.
 - `.dockerignore` evita copiar archivos innecesarios o sensibles a la imagen.
-- Imágenes con versión fija (`php:8.2-apache`, `mysql:8.4`).
+- Imágenes con versión fija (`php:8.2-apache`, `mysql:8.4`), sin `latest`.
 
 ## Integración continua
 
 El workflow `.github/workflows/ci.yml` se ejecuta en cada `push` y `pull_request`: valida el compose, construye las imágenes, levanta los contenedores y ejecuta la prueba de comunicación `web → db`.
+
+## Integración continua con Jenkins
+
+El pipeline (`Jenkinsfile`) tiene las etapas Checkout, Build y Test, y un bloque post. Jenkins consulta GitHub cada ~2 minutos (Poll SCM), construye las imágenes de los dos servicios, levanta el compose y ejecuta `tests/test_comunicacion.sh`, que verifica que `web` resuelve `db` por nombre, que `DB_HOST` vale `db` y que un dato se guarda y se lee de vuelta.
+
+```bash
+# 1. Levantar Jenkins (interfaz en http://localhost:8081)
+cd jenkins
+docker compose up -d --build
+
+# 2. Contraseña inicial de administrador
+docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword
+
+# 3. Comprobar que Jenkins puede usar Docker
+docker exec jenkins docker compose version
+```
+
+Las contraseñas no están en el código: se guardan en Jenkins como credencial de tipo Secret file con ID `licorera-env` (contiene el contenido del archivo `.env`).
